@@ -69,7 +69,7 @@ class GameService:
             bool: True, если уровень был успешно улучшен, False, если недостаточно коинов.
         """
         user = self.get_user(tg_user)
-        upgrade_need = round(user.level**2 * (1 // 3))
+        upgrade_need = round(user.level**2 - len(GameService().get_friends_list(user))*user.level)
         if user.balance < upgrade_need:
             return False
         user.balance -= upgrade_need
@@ -94,10 +94,10 @@ class GameService:
         # TODO: описать функцию
         user = self.get_user(tg_user)
 
-        if user.telegram_id == tg_user.id:
+        if invite_code == tg_user.id:
             return "Invalid code: Cannot import your own code!"
         inviter = (
-            self.session.query(User).filter(User.inviter_id == invite_code).first()
+            self.session.query(User).filter(User.telegram_id == invite_code).first()
         )
         if not inviter:
             return "Invalid code: No inviter found!"
